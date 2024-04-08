@@ -1,69 +1,15 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
-  <title> FilaMint Database System </title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer List</title>
 </head>
 <body>
-	<h1> FilaMint Database System </h1>
-	
-	<h2>Materials </h2>
-	<p>All Materials Are Below:</p>
-	<div id='materials_list'></div>	  
-	  <script>
-	  // Fetch data via requests
-	  fetch('/materials')
-		.then(response => response.json())
-		.then(data => {
-		const materialList = data.map(
-		  tblMaterials => `<li> About material ${tblMaterials.material_id} : &nbsp;
-			${tblMaterials.material_type}
-			- ${tblMaterials.material_color}
-			- &dollar;${tblMaterials.material_price} per kg</li>`
-		).join('');
-		document.getElementById('materials_list').innerHTML = `<ul>${materialList}</ul>`;
-	  })
-		.catch(error => console.error('Error occurred:', error));
-	  </script>
+    <h1>Customer List</h1>
+    <div id="customers_list"></div>
 
-
-	<h2>Inventory</h2>
-	<p>All Inventory Is Below:</p>
-	<div id='Inventory_list'></div>	  
-	  <script>
-	  // Fetch data via requests
-	  fetch('/inventory')
-		.then(response => response.json())
-		.then(data => {
-		const Inventorylist = data.map(
-		  tblInventory => `<li> About Inventory ${tblInventory.material_id} : &nbsp;
-			on hand: ${tblInventory.on_hand}
-			- last restock: ${tblInventory.last_restock}</li>`
-		).join('');
-		document.getElementById('Inventory_list').innerHTML = `<ul>${Inventorylist}</ul>`;
-	  })
-		.catch(error => console.error('Error occurred:', error));
-	  </script>
-
-
-	<h2>Customers</h2>
-	<p>All Customers Are Below:</p>
-	<div id='Customer_list'></div>	  
-	  <script>
-	  // Fetch data via requests
-	  fetch('/customers')
-		.then(response => response.json())
-		.then(data => {
-		const Customerllist = data.map(
-		  tblCustomers => `<li> About Customer ${tblCustomers.customer_id} : &nbsp;
-			Name: ${tblCustomers.first_name} ${tblCustomers.last_name}
-			- Company Name: ${tblCustomers.company_name}</li>`
-		).join('');
-		document.getElementById('Customer_list').innerHTML = `<ul>${Customerllist}</ul>`;
-	  })
-		.catch(error => console.error('Error occurred:', error));
-	  </script>
-
-	</body>
-	</html>
+    <!-- Include your JavaScript code here -->
+    <script src="client.js"></script>
+</body>
+</html>

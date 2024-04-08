@@ -26,71 +26,21 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '', 'index.html'));
 });
 
-// Route handler for GET student data
-app.get('/materials', (req, res) => {
-  const query = 'SELECT * FROM public."tblMaterials";';
+// Define the route for fetching customers by company name
+app.get('/customers', async (req, res) => {
+  const _company_name = req.query.company_name; // Extract the company name from the query parameter
 
-  pool.query(query, (error, result) => {
-    if (error) {
-      console.error('Error occurred:', error);
-      res.status(500).send('An error occurred while retrieving data from the database.');
-    } else {
-      const materials = result.rows;
-      res.json(materials);
-    }
-  });
-});
+  try {
+    const query = 'SELECT * FROM public."tblCustomers" WHERE company_name = $1';
+    const params = [_company_name];
 
-app.get('/inventory', (req, res) => {
-  const query = 'SELECT * FROM public."tblInventory";';
-
-  pool.query(query, (error, result) => {
-    if (error) {
-      console.error('Error occurred:', error);
-      res.status(500).send('An error occurred while retrieving data from the database.');
-    } else {
-      const materials = result.rows;
-      res.json(materials);
-    }
-  });
-});
-
-app.get('/customers', (req, res) => {
-  const query = 'SELECT * FROM public."tblCustomers";';
-
-  pool.query(query, (error, result) => {
-    if (error) {
-      console.error('Error occurred:', error);
-      res.status(500).send('An error occurred while retrieving data from the database.');
-    } else {
-      const materials = result.rows;
-      res.json(materials);
-    }
-  });
-});
-
-async function getCustomersByCompanyName(_company_name){
-	const query = 'Select * from public."tblCustomers" where company_name = $1';
-	const params = [_company_name];
-	
-	try {
     const result = await pool.query(query, params);
-    return result.rows;
+    res.json(result.rows); // Return the customer data as JSON
   } catch (error) {
     console.error('Error executing query:', error);
-    throw error;
+    res.status(500).json({ error: 'Internal server error' });
   }
-}
-
-// Example usage:
-const _company_name = 'NexTech';
-getCustomersByCompanyName(_company_name)
-	.then((tblCustomers) => {
-    console.log('Customers:', tblCustomers);
-  })
-  .catch((err) => {
-    console.error('Error fetching customers:', err);
-  });
+});
 
 // Listening to Requests
 app.listen(port, () => {
