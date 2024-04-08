@@ -17,6 +17,7 @@ const pool = new Pool({
   port: 5432, // Default Port
 });
 
+//set static file serving
 app.use(express.static(path.join('')));
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -27,7 +28,7 @@ app.get('/', (req, res) => {
 });
 
 // Define the route for fetching customers by company name
-app.get('/customers', async (req, res) => {
+app.get('/customers/lookUpByCompany', async (req, res) => {
   const _company_name = req.query.company_name; // Extract the company name from the query parameter
 
   try {

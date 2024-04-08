@@ -1,23 +1,31 @@
 // client.js
+window.addEventListener("DOMContentLoaded", domLoaded);
+const serverUrl = 'http://localhost:3000';
 
-// Replace with your actual server URL
-const serverUrl = 'http://localhost:3000'; // Example: 'http://your-server-domain.com'
+function domLoaded() {
+	document.addEventListener('DOMContentLoaded', fetchCustomers);
+	
+	let btnLookUp = document.getElementById("CompanyInputButton");
+	btnLookUp.addEventListener("click", fetchCustomers);
+}
 
 // Function to fetch customer data and update the div
 async function fetchCustomers() {
-    const company_name = 'NexTech'; // Replace with the actual company name
+	const company_name = document.getElementById("CompanyInput").value;
+	
+	if(company_name != ""){
+		try {
+			const response = await fetch(`${serverUrl}/customers/lookUpByCompany?company_name=${encodeURIComponent(company_name)}`);
+			if (!response.ok) {
+				throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+			}
 
-    try {
-        const response = await fetch(`${serverUrl}/customers?company_name=${encodeURIComponent(company_name)}`);
-        if (!response.ok) {
-            throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        displayCustomers(data);
-    } catch (error) {
-        console.error('Error fetching data:', error);
-    }
+			const data = await response.json();
+			displayCustomers(data);
+		} catch (error) {
+			console.error('Error fetching data:', error);
+		}
+	}
 }
 
 // Function to display customer data in the div
@@ -40,5 +48,3 @@ function displayCustomers(customers) {
     customersDiv.appendChild(ul);
 }
 
-// Call the fetchCustomers function when the page loads
-document.addEventListener('DOMContentLoaded', fetchCustomers);
