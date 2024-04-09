@@ -7,13 +7,36 @@
     <title>FilaMint CRUD App</title>
 </head>
 <body>
-    <h1>Customer List</h1>
-		<p>
-			<label for="CompanyInput">Company Name:</label>
-			<input id="CompanyInput" type="text">
-		</p>
-		<input id="CompanyInputButton" type="button" value="Look-Up">
-		<div id="customers_list"></div>
+	<h1>Customer Center</h1>
+		<h2>Create Customer</h2>
+			<p>
+				<label for="customerFirstName">First Name:</label>
+				<input id="customerFirstName" type="text">
+				
+				<label for="customerLastName">Last Name:</label>
+				<input id="customerLastName" type="text">
+				
+				<br>
+				
+				<label for="customerCompanyName">Company Name:</label>
+				<input id="customerCompanyName" type="text">
+				
+				<label for="customerShippingAddr">Shipping Address:</label>
+				<input id="customerShippingAddr" type="text">
+				
+			</p>
+			<input id="addNewCustomer" type = "button" value = "Add New Customer">
+			
+			<div id="createCustomerUpdateMessage" text align="center"></div>
+			
+			
+		<h2>Customer List</h2>
+			<p>
+				<label for="CompanyInput">Company Name:</label>
+				<input id="CompanyInput" type="text">
+			</p>
+			<input id="CompanyInputButton" type="button" value="Look-Up">
+			<div id="customers_list"></div>
     
 </body>
 </html>
