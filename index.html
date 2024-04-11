@@ -7,36 +7,84 @@
     <title>FilaMint CRUD App</title>
 </head>
 <body>
-	<h1>Customer Center</h1>
-		<h2>Create Customer</h2>
-			<p>
-				<label for="customerFirstName">First Name:</label>
-				<input id="customerFirstName" type="text">
+	<div id="Customer Center">
+		<h1>Customer Center</h1>
+			<h2>Create Customer</h2>
+				<p>
+					<label for="customerFirstName">First Name:</label>
+					<input id="customerFirstName" type="text">
+					
+					<label for="customerLastName">Last Name:</label>
+					<input id="customerLastName" type="text">
+					
+					<br>
+
+					
+					
+					<label for="customerCompanyName">Company Name:</label>
+					<input id="customerCompanyName" type="text">
+					
+					<label for="customerShippingAddr">Shipping Address:</label>
+					<input id="customerShippingAddr" type="text">
+					
+				</p>
+				<input id="addNewCustomer" type = "button" value = "Add New Customer">
 				
-				<label for="customerLastName">Last Name:</label>
-				<input id="customerLastName" type="text">
+				<div id="createCustomerUpdateMessage" text align="center"></div>
 				
-				<br>
-				
-				<label for="customerCompanyName">Company Name:</label>
-				<input id="customerCompanyName" type="text">
-				
-				<label for="customerShippingAddr">Shipping Address:</label>
-				<input id="customerShippingAddr" type="text">
-				
-			</p>
-			<input id="addNewCustomer" type = "button" value = "Add New Customer">
 			
-			<div id="createCustomerUpdateMessage" text align="center"></div>
-			
-			
-		<h2>Customer List</h2>
-			<p>
-				<label for="CompanyInput">Company Name:</label>
-				<input id="CompanyInput" type="text">
-			</p>
-			<input id="CompanyInputButton" type="button" value="Look-Up">
-			<div id="customers_list"></div>
-    
+			<h2>Customer Look-Up</h2>
+				<!--ToDo-->
+				<p>
+					<label for="lookUpID">Customer ID</label>
+					<input id="lookUpID" type="text">
+
+					<label for="lookUpFirstName">First Name</label>
+					<input id="lookUpFirstName" type="text">
+
+					<label for="lookUpLastName">Last Name</label>
+					<input id="lookUpLastName" type = "text">
+					
+					<br>
+
+					<label for="lookUpCompany">Company</label>
+					<input id="lookUpCompany" type="text">
+
+					<label for="lookUpAddr">Address</label>
+					<input id="lookUpAddr" type="text">
+				</p>
+				<input id="lookUp" type="button" value="Look-Up Customer">
+				<div id="lookUpCustomerOutput"></div>
+
+			<h2>Customer Browser</h2>
+				<!--ToDo-->
+				<p>Browse and update customer records</p>
+				<p>
+					<input id="openCustomerBrowser" type="button" value="Launch">
+				</p>
+
+			<h2>Customer List</h2>
+				<!--ToDo-->
+				<p>View List of All Customers</p>
+				<p>
+					<input id="openCustomerList" type="button" value="Launch">
+				</p>
+			<h2>Customer List</h2>
+				<p>
+					<label for="CompanyInput">Company Name:</label>
+					<input id="CompanyInput" type="text">
+				</p>
+				<input id="CompanyInputButton" type="button" value="Look-Up">
+				<div id="customers_list"></div>
+	</div>
+	<div id="OrderCenter">
+		<h1>Order Center</h1>
+	</div>
+	<div id="MaterialsCenter">
+		<h1>Materials Center</h1>
+	</div>
+	<div id="Inventory Center">
+		<h1>Materials Center</h1>
+	</div>
 </body>
 </html>

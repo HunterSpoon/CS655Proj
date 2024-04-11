@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="customerBrowser.js"></script>
+    <title>FilaMint CRUD App: Customer Browser</title>
+</head>
+<body>
+    <h1>Customer Browser</h1>
+    <p>
+        <div id="custBrowserID">Customer ID:</div>
+        <div id="custBrowserFirstName">First Name:</div>
+        <div id="custBrowserLastName">Last Name:</div>
+        <div id="custBrowserCompanyName">Company Name:</div>
+        <div id="custBrowserAddr">Address:<div>
+    </p>
+
+    <p>
+        <label for="customerFirstName">First Name:</label>
+        <input id="customerFirstName" type="text">
+
+        <label for="customerLastName">Last Name:</label>
+        <input id="customerLastName" type="text">
+
+        <br>
+
+        <label for="customerCompanyName">Company Name:</label>
+        <input id="customerCompanyName" type="text">
+
+        <label for="customerShippingAddr">Shipping Address:</label>
+        <input id="customerShippingAddr" type="text">
+    </p>
+    
+    <p><i>Fields left blank will be unchanged.</i></p>
+
+    <p>
+        <input id="custBrowserNextCust" type="button" value="Next Customer">
+        <input id="custBrowserPrevCust" type="button" value="Previous Customer">
+        <input id="custBrowserUpdate" type="button" value="Update Customer">
+        <input id="custBrowserDelete" type="button" value="Delete Customer">
+    </p>
+
+    <div id="custBrowserMessageDiv" text align ="center">!: Messages Go Here</div>
+
+    <p>
+        <h2>Orders for Customer</h2>
+        <div id="ordersOnCustomer">Orders Go Here</div>
+    </p>
+</body>
