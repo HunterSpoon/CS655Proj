@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="inventoryBrowser.js"></script>
+    <title>FilaMint CRUD App: inventory Browser</title>
+</head>
+<body>
+    <h1>Inventory Browser</h1>
+    <p>
+        <div id="inventoryBrowserID">Inventory ID:</div>
+        <div id="inventoryBrowserOnHand">On Hand:</div>
+        <div id="inventoryBrowserLastRestock">Last Restock:</div>
+        <div id="inventoryBrowserMaterialID">Material ID:</div>
+        <div id="InvetoryBrowserMaterialData">
+            <ul>
+                <li>Material Type:</li>
+                <li>Material Price:</li>
+                <li>Material Color:</li>
+            </ul>
+        </div>
+
+    </p>
+
+    <p>
+        <label for="InventoryLookupID">Inventory ID:</label>
+        <input id="InventoryLookupID" type="text">
+
+        <label for="InventoryLookupOnHand">On Hand:</label>
+        <input id="InventoryLookupOnHand" type="text">
+
+        <br>
+
+        <label for="InventoryLookUpRestock">Last Restock:</label>
+        <input id="InventoryLookUpRestock" type="text">
+    </p>
+    
+    <p><i>Fields left blank will be unchanged.</i></p>
+
+    <p>
+        <input id="inventoryBrowserPrevinventory" type="button" value="Previous Inventory">
+        <input id="inventoryBrowserNextinventory" type="button" value="Next Inventory">
+        <input id="inventoryBrowserUpdate" type="button" value="Update Inventory">
+        <input id="inventoryBrowserDelete" type="button" value="Delete Inventory">
+    </p>
+
+    <div id="inventoryBrowserMessageDiv" text align ="center">!: Messages Go Here</div>
+</body>

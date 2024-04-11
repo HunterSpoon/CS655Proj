@@ -18,8 +18,6 @@
 					<input id="customerLastName" type="text">
 					
 					<br>
-
-					
 					
 					<label for="customerCompanyName">Company Name:</label>
 					<input id="customerCompanyName" type="text">
@@ -32,7 +30,6 @@
 				
 				<div id="createCustomerUpdateMessage" text align="center"></div>
 				
-			
 			<h2>Customer Look-Up</h2>
 				<!--ToDo-->
 				<p>
@@ -79,12 +76,134 @@
 	</div>
 	<div id="OrderCenter">
 		<h1>Order Center</h1>
+			<h2>Order Look-Up</h2>
+			<!--ToDo-->
+				<p>
+					<label for="orderLookUpID">Order ID:</label>
+					<input id="orderLookUpID" type="text">
+
+					<label for="orderLookUpDate">Order Date:</label>
+					<input id="orderLookUpDate" type="text">
+
+					<br>
+
+					<label for="orderLookUpTrackingInfo">Tracking Info:</label>
+					<input id="orderLookUpTrackingInfo" type="text">
+
+					<label for="orderLookUpCustomerID">Customer ID:</label>
+					<input id="orderLookUpCustomerID" type="text">
+				</p>
+				<input id="orderLookUpButton" type="button" value="Look-Up">
+				<div id="orderLookUpDiv">Output here.</div>
+			<h2>Order Browser</h2>
+			<!--ToDo-->
+				<p>
+					Browse and update orders
+				</p>
+					<input id="openOrderBrowser" type="button" value="Launch">
+
+			<h2>Orders List</h2>
+			<!--ToDo-->
+				<p>
+					View list of all orders.
+				</p>
+					<input id="openOrderList" value="Launch" type="button">
 	</div>
 	<div id="MaterialsCenter">
 		<h1>Materials Center</h1>
+			<h2>Create Material</h2>
+				<p>
+					<label for="materialsType">Material Type:</label>
+					<input id="materialsType" type="text">
+
+					<label for="materialsPrice">Material Price:</label>
+					<input id="materialsPrice" type="text">
+
+					<label for="materialsColor">Material Color</label>
+					<input id="materialsColor" type="text">
+				</p>
+					<input id="addNewMaterial" type="button" value="Add New Material">
+					<div id="createNewMaterialDiv">!: Message Here</div>
+
+			<h2>Material Look-Up</h2>
+				<p>
+					<label for="materialID">Material Type:</label>
+					<input id="materialID" type="text">
+
+					<label for="materialPrice">Price:</label>
+					<input id="materialPrice" type="text">
+
+					<br>
+
+					<label for="materialColor">Material Color:</label>
+					<input id="materialColor" type="text">
+				</p>
+				<input id="materialLookUp" type="button" value="Look-Up Material">
+				<div id="materialLookUpDiv">Results go here.</div>
+
+			<h2>Material Browser</h2>
+				<p>
+					Browse and update materials.
+				</p>
+				<input id="openMaterialsBrowser" type="button" value="Launch">
+
+			<h2>Material List</h2>
+				<p>
+					View list of all materials.
+				</p>
+				<input id="openMaterialList" value="Launch" type="button">
 	</div>
 	<div id="Inventory Center">
-		<h1>Materials Center</h1>
+		<h1>Inventory Center</h1>
+			<h2>Create Inventory</h2>
+				<p>
+					<label for="<MaterialID>">Material ID:</label>
+					<input id="MaterialID" type="text">
+
+					<div id="InvetoryBrowserMaterialData">
+						<ul>
+							<li>Material Type:</li>
+							<li>Material Price:</li>
+							<li>Material Color:</li>
+						</ul>
+					</div>
+
+					<label for="inventoryOnHand">Inventory On Hand:</label>
+					<input id="inventoryOnHand" type="text">
+
+					<label for="inventoryLastRestock">Last Restock</label>
+					<input id="inventoryLastRestock" type="text">
+				</p>
+					<input id="addNewInventory" type="button" value="Add New Inventory">
+					<div id="createNewInventoryDiv">!: Message Here</div>
+
+			<h2>Inventory Look-Up</h2>
+				<p>
+					<label for="InventoryLookupID">Inventory ID:</label>
+					<input id="InventoryLookupID" type="text">
+
+					<label for="InventoryLookupOnHand">On Hand:</label>
+					<input id="InventoryLookupOnHand" type="text">
+
+					<br>
+
+					<label for="InventoryLookUpRestock">Last Restock:</label>
+					<input id="InventoryLookUpRestock" type="text">
+				</p>
+				<input id="InventoryLookUp" type="button" value="Look-Up Inventory">
+				<div id="InventoryLookUpDiv">Results go here.</div>
+
+			<h2>Inventory Browser</h2>
+				<p>
+					Browse and update Inventory.
+				</p>
+				<input id="openInventoryBrowser" type="button" value="Launch">
+
+			<h2>Inventory List</h2>
+				<p>
+					View list of all Inventory.
+				</p>
+				<input id="openInventoryList" value="Launch" type="button">
 	</div>
 </body>
 </html>

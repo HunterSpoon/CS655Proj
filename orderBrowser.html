@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="orderBrowser.js"></script>
+    <title>FilaMint CRUD App: Order Browser</title>
+</head>
+<body>
+    <h1>Order Browser</h1>
+    <p>
+        <div id="orderBrowserOrderID">Order ID:</div>
+        <div id="orderBrowserCustomerId">Customer ID:</div>
+        <div id="orderBrowserCustomerData">
+            <ul>
+                <li>Customer Name:</li>
+                <li>Company Name:</li>
+                <li>Customer Address:</li>
+            </ul>
+        </div>
+        <div id="orderBrowserOrderDate">Order Date:</div>
+        <div id="orderBrowserOrderTrackingInfo">Tracking Info:</div>
+        <div id = "orderBrowserOrderItems">Order Items:</div>
+    </p>
+
+    <p>
+        <label for="orderBrowserUpdateOrderDate">Order Date</label>
+        <input id="orderBrowserUpdateOrderDate" type="text">
+
+        <label for="orderBrowserUpdateTrackingInfo">Tracking Info:</label>
+        <input id="orderBrowserUpdateTrackingInfo" type="text">
+        
+        <br>
+
+        <label for="orderBrowserUpdateCustomerId">Customer ID:</label>
+        <input id="orderBrowserUpdateCustomerId" type="text">
+        
+        <div id="orderBrowserUpdateCustomerData">
+            !: customer data or message saying customer does not exist here
+        </div>
+    </p>
+
+    <p><i>Fields left blank will be unchanged.</i></p>
+
+    <p>
+        <input id="orderBrowserPrevOrder" type="button" value="Previous Order">
+        <input id="orderBrowserNextOrder" type="button" value="Next Order">
+        <input id="orderBrowserUpdate" type="button" value="Update Order">
+        <input id="orderBrowserDelete" type="button" value="Delete Order">
+    </p>
+</body>

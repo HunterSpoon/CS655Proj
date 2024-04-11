@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="materialsBrowser.js"></script>
+    <title>FilaMint CRUD App: Materials Browser</title>
+</head>
+<body>
+    <h1>Material Browser</h1>
+    <p>
+        <div id="materialsBrowserID">Material ID:</div>
+        <div id="materialsBrowserType">Type:</div>
+        <div id="materialsBrowserPrice">Price:</div>
+        <div id="materialsBrowserColor">Color:</div>
+    </p>
+
+    <p>
+        <label for="materialID">Material Type:</label>
+        <input id="materialID" type="text">
+
+        <label for="materialPrice">Price:</label>
+        <input id="materialPrice" type="text">
+
+        <br>
+
+        <label for="materialColor">Material Color:</label>
+        <input id="materialColor" type="text">
+    </p>
+    
+    <p><i>Fields left blank will be unchanged.</i></p>
+
+    <p>
+        <input id="materialBrowserPrevmaterial" type="button" value="Previous Material">
+        <input id="materialBrowserNextmaterial" type="button" value="Next Material">
+        <input id="materialBrowserUpdate" type="button" value="Update Material">
+        <input id="materialBrowserDelete" type="button" value="Delete Material">
+    </p>
+
+    <div id="materialBrowserMessageDiv" text align ="center">!: Messages Go Here</div>
+
+    <p>
+        <h2>Materials in Inventory</h2>
+        <div id="materialsInInventory">inventory Goes Here</div>
+    </p>
+</body>
