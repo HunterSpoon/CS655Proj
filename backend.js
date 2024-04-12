@@ -3,6 +3,8 @@ const express = require('express');
 const { Pool } = require('pg');
 const path = require('path');
 const bodyParser = require('body-parser');
+const cors = require("cors");
+
 
 // Connect and Create an Express Application
 const app = express();
@@ -22,6 +24,7 @@ app.use(express.static(path.join('')));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cors());
 
 // Setup Route handler
 app.get('/', (req, res) => {
@@ -57,7 +60,64 @@ app.post('/customers/addNew', async (req, res) => {
   }
 });
 
-//const { shippingAddress, companyName, firstName, lastName } = req.body;
+// Define the route for fetching customers by any combination of fields
+app.post('/customers/lookUp', async (req, res) => {
+  const {lookUpID, lookUpFirstName,  lookUpLastName,  lookUpCompany, lookUpAddr} = req.body;
+
+  try {
+
+    // Construct the query dynamically based on provided parameters
+    let query = 'SELECT * FROM public."tblCustomers" WHERE 1=1'; // Start with a generic condition
+
+    // Add conditions for non-empty parameters
+    if (lookUpID && lookUpID.trim != "" && lookUpID !== null) {
+      query += ` AND customer_id = '${lookUpID}'`;
+    }
+
+    if (lookUpFirstName) {
+      query += ` AND first_name = '${lookUpFirstName}'`;
+    }
+
+    if (lookUpLastName) {
+      query += ` AND last_name = '${lookUpLastName}'`;
+    }
+    
+    if (lookUpCompany) {
+      query += ` AND company_name = '${lookUpCompany}'`;
+    }
+    
+    if (lookUpAddr) {
+      query += ` AND shipping_address = '${lookUpAddr}'`;
+    }
+
+    console.log('Query Made at: /customers/lookUp: ' + query);
+
+    //const query = 'SELECT * FROM public."tblCustomers" WHERE customer_id = $1 and first_name = $2 and last_name = $3 and company_name = $4 and shipping_address = $5';
+    //const params = [lookUpID, lookUpFirstName,  lookUpLastName,  lookUpCompany, lookUpAddr]
+
+    const result = await pool.query(query);
+    res.json(result.rows); // Return the customer data as JSON
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Define the route for fetching customers by company name
+app.get('/customers/firstCustomer', async (req, res) => {
+  
+
+  try {
+    const query = 'select min(customer_id) from public."tblCustomers"';
+
+    const result = await pool.query(query);
+    const minCustomerId = result.rows[0].min; // Access the 'min' property
+    res.json({ minCustomerId });
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 // Define the route for fetching customers by company name
 app.get('/customers/lookUpByCompany', async (req, res) => {
