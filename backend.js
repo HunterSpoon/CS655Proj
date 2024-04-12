@@ -103,6 +103,85 @@ app.post('/customers/lookUp', async (req, res) => {
   }
 });
 
+app.post('/customers/Update', async (req, res) => {
+  const {customerID, customerFirstName, customerLastName, customerCompanyName,customerShippingAddr} = req.body;
+
+  try {
+
+    // Construct the query dynamically based on provided parameters
+    let query = 'UPDATE public."tblCustomers" SET';
+
+    // Add conditions for non-empty parameters
+    if (customerFirstName) {
+      query += `first_name = '${customerFirstName}',`;
+    }
+
+    if (customerLastName) {
+      query += `last_name = '${customerLastName}',`;
+    }
+    
+    if (customerCompanyName) {
+      query += `company_name = '${customerCompanyName}',`;
+    }
+    
+    if (customerShippingAddr) {
+      query += `shipping_address = '${customerShippingAddr}'`;
+    }
+
+    query += `customer_id = '${customerID}',`;
+
+    console.log('Update Query Made at: /customers/Update: ' + query);
+
+    const result = await pool.query(query);
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//Define the route for fetching the next customer
+app.get('/customers/nextCustomer', async(req, res) => {
+  const lookUpID  = req.query.lookUpID; //extract the lookUpId from the parameter
+  
+  try{
+    const query = `SELECT customer_id FROM tblCustomers WHERE customer_id > '${lookUpID}' ORDER BY customer_id LIMIT 1`;
+    const result = await pool.query(query);
+
+    if (result.rows.length === 0) {
+      // Handle the case where no customer ID is less than the specified lookUpID
+      res.status(404).json({ error: 'No previous customer found.' });
+    } else {
+      const nextCustID = result.rows[0].customer_id;
+      res.json({ nextCustID });
+    }
+  }catch(error){
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//Define the route for fetching the previous customer
+app.get('/customers/previousCustomer', async(req, res) => {
+  const lookUpID  = req.query.lookUpID; //extract the lookUpId from the parameter
+  
+  try{
+    const query = `SELECT customer_id FROM tblCustomers WHERE customer_id < '${lookUpID}' ORDER BY customer_id DESC LIMIT 1`;
+    
+    const result = await pool.query(query);
+
+    if (result.rows.length === 0) {
+      // Handle the case where no customer ID is less than the specified lookUpID
+      res.status(404).json({ error: 'No previous customer found.' });
+    } else {
+      const prevCustID = result.rows[0].customer_id;
+      res.json({ prevCustID });
+    }
+  }catch(error){
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Define the route for fetching customers by company name
 app.get('/customers/firstCustomer', async (req, res) => {
   
@@ -118,6 +197,8 @@ app.get('/customers/firstCustomer', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
 
 // Define the route for fetching customers by company name
 app.get('/customers/lookUpByCompany', async (req, res) => {
