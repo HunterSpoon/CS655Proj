@@ -78,6 +78,7 @@ CREATE TABLE IF NOT EXISTS public."tblOrders"
 */
 
 
+
 // Connect and Create an Express Application
 const app = express();
 const port = 3000; // By default, its 3000, you can customize
@@ -102,6 +103,111 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '', 'index.html'));
 });
 
+//define the route for fetching all orders
+app.get('/orders/All', async (req, res) => {
+  try {
+    const query = 'SELECT * FROM public."tblOrders" ORDER BY order_id ASC';
+    const result = await pool.query(query);
+    //log the query
+    console.log('Query Made at: /orders/All: ' + query);
+    res.json(result.rows); // Return the order data as JSON
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//define the route for fetching all orders, natural join with tblCustomers, and tblOrder_Items and tblMaterials
+app.get('/orderItems/All', async (req, res) => {
+  //this makes for a very large response payload, but oh well. The alternative is to make multiple requests, unless i'm just dense.
+  try {
+    const query = 'SELECT * FROM public."tblOrder_Items" Natural JOIN public."tblMaterials" ORDER BY "tblOrder_Items".order_id ASC';
+    const result = await pool.query(query);
+    //log the query
+    console.log('Query Made at: /orders/All/Verbose ' + query);
+    res.json(result.rows); // Return the order data as JSON
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//Define the route for fetching all items in an order
+app.get('/orderItems/AllItemsOnOrder', async (req, res) => {
+  try {
+    const orderID = req.query.order_ID; //get the order id from the query parameter
+    const query = `SELECT * FROM public."tblOrder_Items" where order_id = '${orderID}' ORDER BY order_id ASC`;
+    console.log(query);
+    const result = await pool.query(query);
+    //log the query
+    console.log('Query Made at: /orderItems/AllItemsOnOrder: ' + query);
+    res.json(result.rows); // Return the order item data as JSON
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//define the route for fetching all materials
+app.get('/materials/All', async (req, res) => {
+  try {
+    const query = 'SELECT * FROM public."tblMaterials" ORDER BY material_id ASC';
+    const result = await pool.query(query);
+    //log the query
+    console.log('Query Made at: /materials/All: ' + query);
+    res.json(result.rows); // Return the material data as JSON
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Define the route for fetching orders by any combination of fields
+app.post('/orders/lookUp', async (req, res) => {
+  const {orderLookUpID, orderLookUpDate, orderLookUpTrackingInfo, orderLookUpCustomerID, orderLookUpCompany, orderLookUpAddr} = req.body;
+
+  try {
+
+    // Construct the query dynamically based on provided parameters
+    let query = 'SELECT "tblOrders".order_id, "tblOrders".customer_id, "tblCustomers".shipping_address, "tblCustomers".company_name, "tblOrders".order_date, "tblOrders".order_tracking_info FROM public."tblOrders" NATURAL JOIN public."tblCustomers" WHERE 1=1'; // Start with a generic condition
+
+    // Add conditions for non-empty parameters
+    if (orderLookUpID) {
+      query += ` AND order_id = '${orderLookUpID}'`;
+    }
+
+    if (orderLookUpDate) {
+      query += ` AND order_date = '${orderLookUpDate}'`;
+    }
+
+    if (orderLookUpTrackingInfo) {
+      query += ` AND order_tracking_info = '${orderLookUpTrackingInfo}'`;
+    }
+
+    if (orderLookUpCustomerID) {
+      query += ` AND customer_id = '${orderLookUpCustomerID}'`;
+    }
+
+    if (orderLookUpCompany) {
+      query += ` AND company_name = '${orderLookUpCompany}'`;
+    }
+
+    if (orderLookUpAddr) {
+      query += ` AND shipping_address = '${orderLookUpAddr}'`;
+    }
+
+    // Execute the SQL query
+    const result = await pool.query(query);
+    // Log the query
+    console.log('Query Made at: /orders/lookUp: ' + query);
+    res.json(result.rows); // Return the order data as JSON
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 //Define the route for fetching all customers
 app.get('/customers/All', async (req, res) => {
   try {
@@ -115,7 +221,6 @@ app.get('/customers/All', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 
 // Define the route for inserting a new customer
 app.post('/customers/addNew', async (req, res) => {

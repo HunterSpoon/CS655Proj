@@ -26,14 +26,14 @@ async function OrderLookup(){
 	//getting the input values
 	const inputs =["orderLookUpID", "orderLookUpDate", "orderLookUpTrackingInfo", "orderLookUpCustomerID", "orderLookUpCompany", "orderLookUpAddr"]
 	const atLeastOneFilled = inputs.some(id => document.getElementById(id).value.trim() !== "");
-	
+	 
 	//div to display the order data
-	const lookUpOrderDiv = document.getElementById("lookUpOrderDiv");
-	lookUpOrderDiv.innerHTML ='';
-	lookUpOrderDiv.style.Color ='';
+	const orderLookUpDiv = document.getElementById("orderLookUpDiv");
+	orderLookUpDiv.innerHTML ='';
+	orderLookUpDiv.style.Color ='';
 
 	if (atLeastOneFilled){
-		lookUpOrderDiv.innerHTML='working';
+		orderLookUpDiv.innerHTML='working';
 
 		try{
 			const orderData ={
@@ -45,7 +45,7 @@ async function OrderLookup(){
 				orderLookUpAddr: document.getElementById("orderLookUpAddr").value.trim()
 			}
 
-			const response = await fetch(`${serverUrl}/orders/lookUp`, {
+			const response = await fetch(`${serverUrl}/orders/LookUp`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -58,26 +58,26 @@ async function OrderLookup(){
 			}
 
 			const data = await response.json();
-			lookUpOrderDiv.innerHTML ='';
-			lookUpOrderDiv.style.Color ='';
+			orderLookUpDiv.innerHTML ='';
+			orderLookUpDiv.style.Color ='';
 
 			const isNotEmpty = !!data && Object.keys(data).length;
 			if (isNotEmpty){
-				displayJsonInTable(data, "lookUpOrderDiv");
+				displayJsonInTable(data, "orderLookUpDiv");
 			}else{
-				lookUpOrderDiv.style.Color ='';
-				lookUpOrderDiv.innerHTML = '!: No Orders Match'
+				orderLookUpDiv.style.Color ='';
+				orderLookUpDiv.innerHTML = '!: No Orders Match'
 			}
 			
 
 		}catch (error){
 			console.error('Error looking up order:', error);
-			lookUpOrderDiv.innerHTML='!: Error looking up order';
-			lookUpOrderDiv.style.color="red";
+			orderLookUpDiv.innerHTML='!: Error looking up order';
+			orderLookUpDiv.style.color="red";
 		}
 	}else{
-		lookUpOrderDiv.innerHTML='!: At Least One Field Must Be Filled';
-		lookUpOrderDiv.style.color="red";
+		orderLookUpDiv.innerHTML='!: At Least One Field Must Be Filled';
+		orderLookUpDiv.style.color="red";
 	};
 };
 
