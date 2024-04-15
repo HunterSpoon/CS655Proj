@@ -119,6 +119,21 @@ app.get('/inventory/lookUp', async (req, res) => {
   }
 });
 
+//define the route for fetching all material data, joined with inventory data
+app.get('/materials/All', async (req, res) => {
+  try {
+    const query = 'SELECT "tblMaterials".material_id,	"tblMaterials".material_type,	"tblMaterials".material_price,	"tblMaterials".material_color, COALESCE("tblInventory".on_hand, 0) AS on_hand, COALESCE("tblInventory".last_restock, null) AS last_restock FROM public."tblMaterials" LEFT JOIN public."tblInventory" ON "tblMaterials".material_id = "tblInventory".material_id ORDER BY "tblMaterials".material_id ASC';
+    const result = await pool.query(query);
+    //log the query
+    console.log('Query Made at: /materials/All: ' + query);
+    res.json(result.rows); // Return the material data as JSON
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 //define the route for fetching the next material id
 app.get('/materials/nextMaterial', async (req, res) => {
   const materialID = req.query.materialID; //extract the material id from the query parameter
