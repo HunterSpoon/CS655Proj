@@ -90,6 +90,13 @@ function fillOrderTable(orders, order_items, materials){
             orderItemsString += `${material.material_type} - ${material.material_color} x ${orderItem.quantity}, `;
         }
 
+        //check if orderItemsString is empty
+        if(orderItemsString.length > 0){ //if not empty
+            orderItemsString = orderItemsString.slice(0, -2); //remove trailing comma and space
+        }else{ //if empty
+            orderItemsString = 'No items on order';
+        }
+
         //fill the cell with the order data
         const tr = document.createElement('tr');
         tr.innerHTML = `

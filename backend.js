@@ -124,7 +124,7 @@ app.get('/orderItems/All', async (req, res) => {
     const query = 'SELECT * FROM public."tblOrder_Items" Natural JOIN public."tblMaterials" ORDER BY "tblOrder_Items".order_id ASC';
     const result = await pool.query(query);
     //log the query
-    console.log('Query Made at: /orders/All/Verbose ' + query);
+    console.log('Query Made at: /orderItems/All ' + query);
     res.json(result.rows); // Return the order data as JSON
   } catch (error) {
     console.error('Error executing query:', error);
@@ -148,6 +148,39 @@ app.get('/orderItems/AllItemsOnOrder', async (req, res) => {
   }
 });
 
+//define the route for adding a new material
+app.post('/materials/addNew', async (req, res) => {
+  try {
+    // Extract the parameters from the request
+    const { materialType, materialPrice, materialColor } = req.body;
+
+
+    // Check if the material already exists
+    const checkQuery = `SELECT COUNT(*) FROM public."tblMaterials" WHERE material_type = '${materialType}' AND material_color = '${materialColor}'`;
+    const existingMaterialResult = await pool.query(checkQuery);
+    //log the query
+    console.log('Query Made at: /materials/addNew: ' + checkQuery);
+
+    // Check if the material already exists
+    if (existingMaterialResult.rows[0].count > 0) {
+      // Material already exists
+      return res.status(409).json({ error: 'Material already exists.' });
+    }
+
+    // Execute the SQL query
+    const query = `INSERT INTO public."tblMaterials" (material_type, material_price, material_color) VALUES ('${materialType}', '${materialPrice}', '${materialColor}')`;
+    await pool.query(query);
+    //log the query
+    console.log('Query Made at: /materials/addNew: ' + query);
+
+    // Send a success response
+    res.status(200).json({ message: 'Material added successfully!' });
+  } catch (error) {
+    console.log('Error adding material:', error);
+    res.status(500).json({ error: 'An error occurred while adding the material.' });
+  }
+});
+
 //define the route for fetching all materials
 app.get('/materials/All', async (req, res) => {
   try {
@@ -164,7 +197,7 @@ app.get('/materials/All', async (req, res) => {
 
 // Define the route for fetching orders by any combination of fields
 app.post('/orders/lookUp', async (req, res) => {
-  const {orderLookUpID, orderLookUpDate, orderLookUpTrackingInfo, orderLookUpCustomerID, orderLookUpCompany, orderLookUpAddr} = req.body;
+  const { orderLookUpID, orderLookUpDate, orderLookUpTrackingInfo, orderLookUpCustomerID, orderLookUpCompany, orderLookUpAddr } = req.body;
 
   try {
 
@@ -212,7 +245,7 @@ app.post('/orders/lookUp', async (req, res) => {
 app.get('/customers/All', async (req, res) => {
   try {
     const query = 'SELECT * FROM public."tblCustomers" ORDER BY customer_id ASC';
-    const result = await pool .query(query);
+    const result = await pool.query(query);
     //log the query
     console.log('Query Made at: /customers/All: ' + query);
     res.json(result.rows); // Return the customer data as JSON
@@ -227,8 +260,8 @@ app.post('/customers/addNew', async (req, res) => {
   try {
     // Extract the parameters from the request
     const { firstName, lastName, companyName, shippingAddress } = req.body;
-	
-	// Check if the customer already exists
+
+    // Check if the customer already exists
     const existingCustomerQuery = 'SELECT COUNT(*) FROM public."tblCustomers" WHERE first_name = $1 AND last_name = $2 AND company_name = $3 AND shipping_address = $4';
     const existingCustomerParams = [firstName, lastName, companyName, shippingAddress];
     const existingCustomerResult = await pool.query(existingCustomerQuery, existingCustomerParams);
@@ -239,11 +272,11 @@ app.post('/customers/addNew', async (req, res) => {
       // Customer already exists
       return res.status(409).json({ error: 'Customer already exists.' });
     }
-	
+
     // Execute the SQL query
     const query = 'INSERT INTO public."tblCustomers" (shipping_address, company_name, first_name, last_name) VALUES ($1, $2, $3, $4)';
     const params = [shippingAddress, companyName, firstName, lastName]
-	  await pool.query(query, params);
+    await pool.query(query, params);
     //log the query with the parameters
     console.log('Query Made at: /customers/addNew: ' + query + ' with parameters: ' + params);
 
@@ -257,7 +290,7 @@ app.post('/customers/addNew', async (req, res) => {
 
 // Define the route for fetching customers by any combination of fields
 app.post('/customers/lookUp', async (req, res) => {
-  const {lookUpID, lookUpFirstName,  lookUpLastName,  lookUpCompany, lookUpAddr} = req.body;
+  const { lookUpID, lookUpFirstName, lookUpLastName, lookUpCompany, lookUpAddr } = req.body;
 
   try {
 
@@ -276,11 +309,11 @@ app.post('/customers/lookUp', async (req, res) => {
     if (lookUpLastName) {
       query += ` AND last_name = '${lookUpLastName}'`;
     }
-    
+
     if (lookUpCompany) {
       query += ` AND company_name = '${lookUpCompany}'`;
     }
-    
+
     if (lookUpAddr) {
       query += ` AND shipping_address = '${lookUpAddr}'`;
     }
@@ -299,7 +332,7 @@ app.post('/customers/lookUp', async (req, res) => {
 //define the route for deleting a customer via post request, delete from tblOrder_items first, then tblOrders, then tblCustomers
 app.post('/customers/delete', async (req, res) => {
   //this might be bad practice, but this is just a school project
-  const {customerID} = req.body;
+  const { customerID } = req.body;
 
   try {
     // Execute the SQL query
@@ -319,7 +352,7 @@ app.post('/customers/delete', async (req, res) => {
 
 
 app.post('/customers/Update', async (req, res) => {
-  const {customerID, customerFirstName, customerLastName, customerCompanyName,customerShippingAddr} = req.body;
+  const { customerID, customerFirstName, customerLastName, customerCompanyName, customerShippingAddr } = req.body;
 
   try {
 
@@ -334,11 +367,11 @@ app.post('/customers/Update', async (req, res) => {
     if (customerLastName) {
       query += `last_name = '${customerLastName}',`;
     }
-    
+
     if (customerCompanyName) {
       query += `company_name = '${customerCompanyName}',`;
     }
-    
+
     if (customerShippingAddr) {
       query += `shipping_address = '${customerShippingAddr}',`;
     }
@@ -348,7 +381,7 @@ app.post('/customers/Update', async (req, res) => {
 
     query += ` WHERE customer_id = '${customerID}'`;
 
-    
+
     // Execute the SQL query
     const result = await pool.query(query);
     //return the result
@@ -362,10 +395,10 @@ app.post('/customers/Update', async (req, res) => {
 });
 
 //Define the route for fetching the next customer
-app.get('/customers/nextCustomer', async(req, res) => {
-  const lookUpID  = req.query.lookUpID; //extract the lookUpId from the parameter
-  
-  try{
+app.get('/customers/nextCustomer', async (req, res) => {
+  const lookUpID = req.query.lookUpID; //extract the lookUpId from the parameter
+
+  try {
     const query = `SELECT customer_id FROM public."tblCustomers" WHERE customer_id > '${lookUpID}' ORDER BY customer_id LIMIT 1`;
     const result = await pool.query(query);
     //log the query
@@ -379,18 +412,18 @@ app.get('/customers/nextCustomer', async(req, res) => {
       const nextCustID = result.rows[0].customer_id;
       res.json({ nextCustID });
     }
-  }catch(error){
+  } catch (error) {
     console.error('Error executing query:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 //Define the route for fetching the previous customer
-app.get('/customers/previousCustomer', async(req, res) => {
-  const lookUpID  = req.query.lookUpID; //extract the lookUpId from the parameter
-  
-  try{
-    const query = `SELECT customer_id FROM public."tblCustomers" WHERE customer_id < '${lookUpID}' ORDER BY customer_id DESC LIMIT 1`;    
+app.get('/customers/previousCustomer', async (req, res) => {
+  const lookUpID = req.query.lookUpID; //extract the lookUpId from the parameter
+
+  try {
+    const query = `SELECT customer_id FROM public."tblCustomers" WHERE customer_id < '${lookUpID}' ORDER BY customer_id DESC LIMIT 1`;
     const result = await pool.query(query);
     //log the query
     console.log('Query Made at: /customers/previousCustomer: ' + query);
@@ -402,7 +435,7 @@ app.get('/customers/previousCustomer', async(req, res) => {
       const prevCustID = result.rows[0].customer_id;
       res.json({ prevCustID });
     }
-  }catch(error){
+  } catch (error) {
     console.error('Error executing query:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
@@ -410,7 +443,7 @@ app.get('/customers/previousCustomer', async(req, res) => {
 
 // Define the route for fetching customers by company name
 app.get('/customers/firstCustomer', async (req, res) => {
-  
+
 
   try {
     const query = 'select min(customer_id) from public."tblCustomers"';

@@ -3,25 +3,79 @@ window.addEventListener("DOMContentLoaded", domLoaded);
 const serverUrl = 'http://localhost:3000';
 
 function domLoaded() {
-	//document.addEventListener('DOMContentLoaded', fetchCustomers);
-	
-
+	//add event listeners to buttons
 	//customer Center
-		//create customer
-		let btnCreateCust = document.getElementById("addNewCustomer");
-		btnCreateCust.addEventListener("click", CustomerAdd);
+		//add customer button
+		document.getElementById("addNewCustomer").addEventListener("click", CustomerAdd);
+		//lookup customer button
+		document.getElementById("CustomerlookUp").addEventListener("click", CustomerLookup);
 
-		//look up customer
-		let btnCustLookup = document.getElementById("CustomerlookUp");
-		btnCustLookup.addEventListener("click", CustomerLookup)
+	//order Center
+		//lookup order button
+		document.getElementById("orderLookUpButton").addEventListener("click", OrderLookup);
 
-	//order center
-		//order lookup
-		let btnOrderLookup = document.getElementById("orderLookUpButton");
-		btnOrderLookup.addEventListener("click", OrderLookup);
-
+	//material Center
+		//add material button
+		document.getElementById("addNewMaterial").addEventListener("click", MaterialAdd);
 }
 
+
+//function that adds a new material to the database via post request to /materials/addNew
+async function MaterialAdd(){
+	//getting the input values
+	const inputs = ["materialsType", "materialsPrice", "materialsColor"];
+	const allFilled = inputs.every(id => document.getElementById(id).value.trim() !== "");
+
+	//div to display the material data
+	const createNewMaterialDiv = document.getElementById('createNewMaterialDiv');
+	createNewMaterialDiv.innerHTML = '';
+
+	if(allFilled){
+		createNewMaterialDiv.innerHTML = 'working';
+		try{
+			// Create a new material object
+			const materialData = {
+				materialType: document.getElementById("materialsType").value.trim(),
+				materialPrice: document.getElementById("materialsPrice").value.trim(),
+				materialColor: document.getElementById("materialsColor").value.trim()
+			}
+
+			// Send a POST request to the server
+			const response = await fetch(`${serverUrl}/materials/addNew`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(materialData)
+			});
+
+			
+			//handle responses
+			if (response.ok) { //response is ok
+				console.log('Material added successfully!');
+				createNewMaterialDiv.innerHTML = 'Material Added';
+				createNewMaterialDiv.style.color = 'green';
+			} else if (response.status === 409) { //material already exists
+				createNewMaterialDiv.innerHTML = '!: Material Already Exists';
+				createNewMaterialDiv.style.color = 'red';
+			} else { //other errors
+				throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+			}
+
+		} catch (error) {
+			// Handle error response
+			console.error('Error adding material:', error);
+			createNewMaterialDiv.innerHTML = 'Error adding material';
+			createNewMaterialDiv.style.color = 'red';
+		}
+	}
+	else {
+		createNewMaterialDiv.innerHTML = '!: All Fields Must Be Filled';
+		createNewMaterialDiv.style.color = 'red';
+	}
+}
+
+//function that fetches all orders from database via get request to /orders/All
 async function OrderLookup(){
 	//getting the input values
 	const inputs =["orderLookUpID", "orderLookUpDate", "orderLookUpTrackingInfo", "orderLookUpCustomerID", "orderLookUpCompany", "orderLookUpAddr"]
@@ -34,7 +88,6 @@ async function OrderLookup(){
 
 	if (atLeastOneFilled){
 		orderLookUpDiv.innerHTML='working';
-
 		try{
 			const orderData ={
 				orderLookUpID: document.getElementById("orderLookUpID").value.trim(),
@@ -53,22 +106,23 @@ async function OrderLookup(){
 				body: JSON.stringify(orderData)
 			});
 
-			if (!response.ok) {
+			//handle responses
+			if (!response.ok) { //response is not ok
 				throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
-			}
+			} else { //response is ok
+				const data = await response.json();
+				orderLookUpDiv.innerHTML = '';
+				orderLookUpDiv.style.Color = '';
 
-			const data = await response.json();
-			orderLookUpDiv.innerHTML ='';
-			orderLookUpDiv.style.Color ='';
-
-			const isNotEmpty = !!data && Object.keys(data).length;
-			if (isNotEmpty){
-				displayJsonInTable(data, "orderLookUpDiv");
-			}else{
-				orderLookUpDiv.style.Color ='';
-				orderLookUpDiv.innerHTML = '!: No Orders Match'
+				//check if data is not empty
+				const isNotEmpty = !!data && Object.keys(data).length;
+				if (isNotEmpty) {
+					displayJsonInTable(data, "orderLookUpDiv");
+				} else {
+					orderLookUpDiv.style.Color = '';
+					orderLookUpDiv.innerHTML = '!: No Orders Match'
+				}
 			}
-			
 
 		}catch (error){
 			console.error('Error looking up order:', error);
@@ -126,6 +180,7 @@ async function displayJsonInTable(jsonData, targetDiv){
 	target.appendChild(table);
 }
 
+//function that fetches all customers from database via post request to /customers/All
 async function CustomerLookup(){
 	const inputs =["lookUpID", "lookUpFirstName",  "lookUpLastName",  "lookUpCompany", "lookUpAddr"]
 	const atLeastOneFilled = inputs.some(id => document.getElementById(id).value.trim() !== "");
@@ -182,6 +237,7 @@ async function CustomerLookup(){
 	}
 };
 
+//function that adds a new customer to the database via post request to /customers/addNew
 async function CustomerAdd(){
 	const inputs = ["customerFirstName", "customerLastName", "customerCompanyName", "customerShippingAddr"];
     const allFilled = inputs.every(id => document.getElementById(id).value.trim() !== "");
