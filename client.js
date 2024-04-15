@@ -7,25 +7,129 @@ function domLoaded() {
 	
 
 	//customer Center
+		//create customer
+		let btnCreateCust = document.getElementById("addNewCustomer");
+		btnCreateCust.addEventListener("click", CustomerAdd);
+
+		//look up customer
+		let btnCustLookup = document.getElementById("CustomerlookUp");
+		btnCustLookup.addEventListener("click", CustomerLookup)
+
+	//order center
+		//order lookup
+		let btnOrderLookup = document.getElementById("orderLookUpButton");
+		btnOrderLookup.addEventListener("click", OrderLookup);
+
+}
+
+async function OrderLookup(){
+	//getting the input values
+	const inputs =["orderLookUpID", "orderLookUpDate", "orderLookUpTrackingInfo", "orderLookUpCustomerID", "orderLookUpCompany", "orderLookUpAddr"]
+	const atLeastOneFilled = inputs.some(id => document.getElementById(id).value.trim() !== "");
 	
-	let btnOldCreateCust = document.getElementById("CompanyInputButton");
-	btnOldCreateCust.addEventListener("click", fetchCustomers);
+	//div to display the order data
+	const lookUpOrderDiv = document.getElementById("lookUpOrderDiv");
+	lookUpOrderDiv.innerHTML ='';
+	lookUpOrderDiv.style.Color ='';
+
+	if (atLeastOneFilled){
+		lookUpOrderDiv.innerHTML='working';
+
+		try{
+			const orderData ={
+				orderLookUpID: document.getElementById("orderLookUpID").value.trim(),
+				orderLookUpDate: document.getElementById("orderLookUpDate").value.trim(),
+				orderLookUpTrackingInfo: document.getElementById("orderLookUpTrackingInfo").value.trim(),
+				orderLookUpCustomerID: document.getElementById("orderLookUpCustomerID").value.trim(),
+				orderLookUpCompany: document.getElementById("orderLookUpCompany").value.trim(),
+				orderLookUpAddr: document.getElementById("orderLookUpAddr").value.trim()
+			}
+
+			const response = await fetch(`${serverUrl}/orders/lookUp`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(orderData)
+			});
+
+			if (!response.ok) {
+				throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+			}
+
+			const data = await response.json();
+			lookUpOrderDiv.innerHTML ='';
+			lookUpOrderDiv.style.Color ='';
+
+			const isNotEmpty = !!data && Object.keys(data).length;
+			if (isNotEmpty){
+				displayJsonInTable(data, "lookUpOrderDiv");
+			}else{
+				lookUpOrderDiv.style.Color ='';
+				lookUpOrderDiv.innerHTML = '!: No Orders Match'
+			}
+			
+
+		}catch (error){
+			console.error('Error looking up order:', error);
+			lookUpOrderDiv.innerHTML='!: Error looking up order';
+			lookUpOrderDiv.style.color="red";
+		}
+	}else{
+		lookUpOrderDiv.innerHTML='!: At Least One Field Must Be Filled';
+		lookUpOrderDiv.style.color="red";
+	};
+};
+
+
+//function that displays json data in a table in target div
+async function displayJsonInTable(jsonData, targetDiv){
+	const target = document.getElementById(targetDiv);
+	target.innerHTML = '';
 	
-	//create customer
-	let btnCreateCust = document.getElementById("addNewCustomer");
-	btnCreateCust.addEventListener("click", CustomerAdd);
+	if (jsonData.length === 0){
+		target.innerHTML = 'Error: No data found.';
+		return;
+	}
+	
+	const table = document.createElement('table');
+	const header = table.createTHead();
+	const headerRow = header.insertRow(0);
+	
+	//adding headers
+	const headers = Object.keys(jsonData[0]);
+	
+	for (const header of headers){
+		const cell = headerRow.insertCell();
+		cell.textContent = header;
+	}
+	
+	//adding data
+	const body = table.createTBody();
+	for (const obj of jsonData){
+		const row = body.insertRow();
+		for (const header of headers){
+			const cell = row.insertCell();
+			cell.textContent = obj[header];
+		}
+	}
 
-	//look up customer
-	let btnCustLookup = document.getElementById("CustomerlookUp");
-	btnCustLookup.addEventListener("click", CustomerLookup)
-
-
+	//removing the underscores from the headers in the table and making them Title case
+	const headerCells = headerRow.cells;
+	for (const cell of headerCells){
+		const header = cell.textContent;
+		const titleCaseHeader = header.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+		cell.textContent = titleCaseHeader;
+	}
+	
+	//appending the table to the target div
+	target.appendChild(table);
 }
 
 async function CustomerLookup(){
 	const inputs =["lookUpID", "lookUpFirstName",  "lookUpLastName",  "lookUpCompany", "lookUpAddr"]
 	const atLeastOneFilled = inputs.some(id => document.getElementById(id).value.trim() !== "");
-	const lookUpCustomerDiv = document.getElementById("lookUpCustomerDiv");
+	const lookUpCustomerDiv = document.getElementById("lookUpCustomerDiv"); //div to display the customer data
 
 	lookUpCustomerDiv.innerHTML ='';
 	lookUpCustomerDiv.style.Color ='';
@@ -60,10 +164,7 @@ async function CustomerLookup(){
 
 			const isNotEmpty = !!data && Object.keys(data).length;
 			if (isNotEmpty){
-				for (const obj of data) {
-					dataRow =  `Customer ID: ${obj.customer_id} Name: ${obj.last_name}, ${obj.first_name} Company Name: ${obj.company_name} Shipping Address: ${obj.shipping_address}`;
-					appendDataToElement(dataRow, "lookUpCustomerDiv")
-				}
+				displayJsonInTable(data, "lookUpCustomerDiv");
 			}else{
 				lookUpCustomerDiv.style.Color ='';
 				lookUpCustomerDiv.innerHTML = '!: No Customers Match'
@@ -142,6 +243,7 @@ async function fetchCustomers() {
 	}
 }
 
+// Function to append generic data to a generic element
 function appendDataToElement(data, elementId) {
     // Get the element by its ID
     const targetElement = document.getElementById(elementId);
@@ -154,15 +256,6 @@ function appendDataToElement(data, elementId) {
     // Append the data to the element
     targetElement.innerHTML += `${data}<br>`;
 }
-
-
-function clearInnerHtml(elementId) {
-    const element = document.getElementById(elementId);
-    if (element) {
-        element.innerHTML = "";
-    }
-}
-
 
 // Function to display customer data in the div
 function displayCustomers(customers) {
