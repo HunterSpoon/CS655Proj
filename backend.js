@@ -148,6 +148,48 @@ app.get('/orderItems/AllItemsOnOrder', async (req, res) => {
   }
 });
 
+//define the route for fetching all materials that match query parameters, join with inventory
+app.post('/materials/lookUp', async (req, res) => {
+  const { materialType, materialPrice, materialColor, materialID} = req.body;
+
+  try {
+    // Construct the query dynamically based on provided parameters
+    let query = 'SELECT * FROM public."tblMaterials" Natural JOIN public."tblInventory" WHERE 1=1'; // Start with a generic condition
+
+    // Add conditions for non-empty parameters
+    if (materialType) {
+      query += ` AND material_type = '${materialType}'`;
+    }
+
+    if (materialColor) {
+      query += ` AND material_color = '${materialColor}'`;
+    }
+
+    if (materialID) {
+      query += ` AND material_id = '${materialID}'`;
+    }
+
+    if (materialPrice) {
+      query += ` AND material_price = '${materialPrice}'`;
+    }
+    //append a semicolon to the end of the query
+    query += ';';
+
+
+    console.log('Query Made at: /materials/lookUp: ' + query);
+
+
+    // Execute the SQL query
+    const result = await pool.query(query);
+    //log the query
+    console.log('Query Made at: /materials/lookUp: ' + query);
+    res.json(result.rows); // Return the material data as JSON
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 //define the route for adding a new material
 app.post('/materials/addNew', async (req, res) => {
   try {

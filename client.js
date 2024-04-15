@@ -17,6 +17,78 @@ function domLoaded() {
 	//material Center
 		//add material button
 		document.getElementById("addNewMaterial").addEventListener("click", MaterialAdd);
+		//lookup material button
+		document.getElementById("materialLookUp").addEventListener("click", MaterialLookup);
+}
+
+//function that fetches materials from the database that match the input values via get request to /materials/lookUp
+async function MaterialLookup(){
+	//getting the input values
+	const inputs = ["materialTypeLookUp", "materialPriceLookUp", "materialColorLookUp", "materialIDLookUp"];
+	const atLeastOneFilled = inputs.some(id => document.getElementById(id).value.trim() !== "");
+
+	//check that materialIDlookUp is an integer
+	if (document.getElementById("materialIDLookUp").value.trim() !== "") {
+		var IDisInteger = Number.isInteger(parseInt(document.getElementById("materialIDLookUp").value.trim()));
+	} else {
+		var IDisInteger = true;
+	}
+	
+	//div to display the material data
+	const materialLookUpDiv = document.getElementById("materialLookUpDiv");
+	materialLookUpDiv.innerHTML = '';
+	materialLookUpDiv.style.color = '';
+
+	if(atLeastOneFilled && IDisInteger){
+		materialLookUpDiv.innerHTML = 'working';
+		try{
+			const materialData = {
+				materialType: document.getElementById("materialTypeLookUp").value.trim(),
+				materialPrice: document.getElementById("materialPriceLookUp").value.trim(),
+				materialColor: document.getElementById("materialColorLookUp").value.trim(),
+				materialID: document.getElementById("materialIDLookUp").value.trim()
+			}
+
+			const response = await fetch(`${serverUrl}/materials/lookUp`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(materialData)
+			});
+
+			//handle responses
+			if (!response.ok) { //response is not ok
+				throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
+			} else { //response is ok
+				const data = await response.json();
+				materialLookUpDiv.innerHTML = '';
+				materialLookUpDiv.style.color = '';
+
+				//check if data is not empty
+				const isNotEmpty = !!data && Object.keys(data).length;
+				if (isNotEmpty) {
+					displayJsonInTable(data, "materialLookUpDiv");
+				} else {
+					materialLookUpDiv.style.color = '';
+					materialLookUpDiv.innerHTML = '!: No Materials Match'
+				}
+			}
+
+		}catch (error){
+			console.error('Error looking up material:', error);
+			materialLookUpDiv.innerHTML='!: Error looking up material';
+			materialLookUpDiv.style.color="red";
+		}
+	}else if(!IDisInteger){
+		materialLookUpDiv.innerHTML='!: Material ID Must Be An Integer';
+		materialLookUpDiv.style.color="red";
+	
+	}else{
+		materialLookUpDiv.innerHTML='!: At Least One Field Must Be Filled';
+		materialLookUpDiv.style.color="red";
+	}
+	
 }
 
 
