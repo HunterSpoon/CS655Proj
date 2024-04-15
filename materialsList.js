@@ -26,17 +26,6 @@ async function fetchMaterials(){
     }
 }
 
-/*
-            <tr>
-                <th>Material Id</th>
-                <th>Material Type</th>
-                <th>Material Price</th>
-                <th>Material Color</th>
-                <th>On Hand</th>
-                <th>Last Restock</th>
-            </tr>
-*/
-
 //function that fills the table with material data
 function fillMaterialTable(materials){
     const table = document.getElementById('MaterialsList');

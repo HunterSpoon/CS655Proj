@@ -103,6 +103,120 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '', 'index.html'));
 });
 
+//define the route for updating an existing inventory item via post request
+app.post('/inventory/update', async (req, res) => {
+  const { materialId, onHand, lastRestock } = req.body;
+
+  try {
+
+    //check if the material exists
+    const checkMaterialQuery = `SELECT COUNT(*) FROM public."tblMaterials" WHERE material_id = '${materialId}'`;
+    const existingMaterialResult = await pool.query(checkMaterialQuery);
+    //log the query
+    console.log('Query Made at: /inventory/update: ' + checkMaterialQuery);
+
+    // Check if the material exists
+    if (existingMaterialResult.rows[0].count > 0) {
+      //material exists
+      // Construct the query dynamically based on provided parameters
+      let query = 'UPDATE public."tblInventory" SET ';
+
+      // Add conditions for non-empty parameters
+      if (onHand) {
+        query += `on_hand = '${onHand}',`;
+      }
+
+      if (lastRestock) {
+        query += `last_restock = '${lastRestock}',`;
+      }
+
+      // Remove the trailing comma
+      query = query.slice(0, -1);
+
+      query += ` WHERE material_id = '${materialId}'`;
+
+      // Execute the SQL query
+      const result = await pool.query(query);
+      //return the result
+      res.json({ message: 'Inventory updated successfully!' });
+      // Log the query
+      console.log('Update Query Made at: /inventory/update: ' + query);
+    }
+    else {
+      // Material does not exist
+      // avoids creating orphaned inventory items
+      return res.status(404).json({ error: 'Material does not exist.' });
+    }
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//define the route for adding a new inventory item
+app.post('/inventory/addNew', async (req, res) => {
+  try {
+    // Extract the parameters from the request
+    const { materialId, onHand, lastRestock } = req.body;
+
+    // Check if the inventory item already exists
+    const checkQuery = `SELECT COUNT(*) FROM public."tblInventory" WHERE material_id = '${materialId}'`;
+    const existingInventoryResult = await pool.query(checkQuery);
+    //log the query
+    console.log('Query Made at: /inventory/addNew: ' + checkQuery);
+
+    // Check if the inventory item already exists
+    if (existingInventoryResult.rows[0].count > 0) {
+      // Inventory item already exists
+      return res.status(409).json({ error: 'Inventory item already exists.' });
+    }
+
+    //check if the material exists
+    const checkMaterialQuery = `SELECT COUNT(*) FROM public."tblMaterials" WHERE material_id = '${materialId}'`;
+    const existingMaterialResult = await pool.query(checkMaterialQuery);
+    //log the query
+    console.log('Query Made at: /inventory/addNew: ' + checkMaterialQuery);
+
+    // Check if the material exists
+    if (existingMaterialResult.rows[0].count > 0) {
+      // Material exists
+    } else {
+      // Material does not exist
+      // avoids creating orphaned inventory items
+      return res.status(404).json({ error: 'Material does not exist.' });
+    }
+
+
+    // Execute the SQL query
+    const query = `INSERT INTO public."tblInventory" (material_id, on_hand, last_restock) VALUES ('${materialId}', '${onHand}', '${lastRestock}')`;
+    await pool.query(query);
+    //log the query
+    console.log('Query Made at: /inventory/addNew: ' + query);
+
+    // Send a success response
+    res.status(200).json({ message: 'Inventory item added successfully!' });
+  } catch (error) {
+    console.log('Error adding inventory item:', error);
+    res.status(500).json({ error: 'An error occurred while adding the inventory item.' });
+  }
+});
+
+//define the route for fetching the material data for a given material id
+app.get('/materials/lookUp/Specific', async (req, res) => {
+  const materialID = req.query.materialId; //extract the material id from the query parameter
+
+  try {
+    const query = `SELECT * FROM public."tblMaterials" WHERE material_id = '${materialID}'`;
+    const result = await pool.query(query);
+    //log the query
+    console.log('Query Made at: /materials/lookUp: ' + query);
+    res.json(result.rows); // Return the material data as JSON
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 //define the route for fetching the inventory data for a given material id
 app.get('/inventory/lookUp', async (req, res) => {
   const materialID = req.query.materialID; //extract the material id from the query parameter
@@ -118,6 +232,8 @@ app.get('/inventory/lookUp', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
 
 //define the route for fetching all material data, joined with inventory data
 app.get('/materials/All', async (req, res) => {
@@ -319,7 +435,7 @@ app.get('/orderItems/AllItemsOnOrder', async (req, res) => {
 
 //define the route for fetching all materials that match query parameters, join with inventory
 app.post('/materials/lookUp', async (req, res) => {
-  const { materialType, materialPrice, materialColor, materialID} = req.body;
+  const { materialType, materialPrice, materialColor, materialID } = req.body;
 
   try {
     // Construct the query dynamically based on provided parameters
