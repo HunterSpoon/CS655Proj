@@ -103,6 +103,160 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '', 'index.html'));
 });
 
+//define the route for fetching the inventory data for a given material id
+app.get('/inventory/lookUp', async (req, res) => {
+  const materialID = req.query.materialID; //extract the material id from the query parameter
+
+  try {
+    const query = `SELECT * FROM public."tblInventory" WHERE material_id = '${materialID}'`;
+    const result = await pool.query(query);
+    //log the query
+    console.log('Query Made at: /inventory/lookUp: ' + query);
+    res.json(result.rows); // Return the inventory data as JSON
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//define the route for fetching the next material id
+app.get('/materials/nextMaterial', async (req, res) => {
+  const materialID = req.query.materialID; //extract the material id from the query parameter
+
+  try {
+    const query = `SELECT material_id FROM public."tblMaterials" WHERE material_id > ${materialID} ORDER BY material_id LIMIT 1`;
+    const result = await pool.query(query);
+    //log the query
+    console.log('Query Made at: /materials/nextMaterial: ' + query);
+
+    if (result.rows.length === 0) {
+      // Handle the case where no material ID is greater than the specified materialID
+      res.status(404).json({ error: 'No next material found.' });
+    } else {
+      const nextMaterialID = result.rows[0].material_id;
+      res.json({ nextMaterialID });
+    }
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//define the route for deleting a material via post request. delete from tblOrder_items first, then tblInventory, then tblMaterials
+app.post('/materials/delete', async (req, res) => {
+  //this might be bad practice, but this is just a school project
+  const { material_id } = req.body;
+
+  try {
+    // Execute the SQL query
+    const query = `DELETE FROM public."tblOrder_Items" WHERE material_id = ${material_id}; DELETE FROM public."tblInventory" WHERE material_id = ${material_id}; DELETE FROM public."tblMaterials" WHERE material_id = ${material_id}`;
+    await pool.query(query);
+    //log the query with the parameters
+    console.log('Query Made at: /materials/delete: ' + query);
+    // Send a success response
+    res.json({ message: 'Material deleted successfully!' });
+  } catch (error) {
+    console.log('Error deleting material:', error);
+    res.status(500).json({ error: 'An error occurred while deleting the material.' });
+  }
+});
+
+//define the route for updating a material via post request
+app.post('/materials/update', async (req, res) => {
+  const { material_id, material_type, material_price, material_color } = req.body;
+
+  try {
+
+    // Construct the query dynamically based on provided parameters
+    let query = 'UPDATE public."tblMaterials" SET ';
+
+    // Add conditions for non-empty parameters
+    if (material_type) {
+      query += `material_type = '${material_type}',`;
+    }
+
+    if (material_price) {
+      query += `material_price = '${material_price}',`;
+    }
+
+    if (material_color) {
+      query += `material_color = '${material_color}',`;
+    }
+
+    // Remove the trailing comma
+    query = query.slice(0, -1);
+
+    query += ` WHERE material_id = '${material_id}'`;
+
+    console.log(query);
+
+    // Execute the SQL query
+    const result = await pool.query(query);
+    //return the result
+    res.json({ message: 'Material updated successfully!' });
+    // Log the query
+    console.log('Update Query Made at: /materials/update: ' + query);
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//define the route for fetching the previous material id
+app.get('/materials/previousMaterial', async (req, res) => {
+  const materialID = req.query.materialID; //extract the material id from the query parameter
+
+  try {
+    const query = `SELECT material_id FROM public."tblMaterials" WHERE material_id < ${materialID} ORDER BY material_id DESC LIMIT 1`;
+    const result = await pool.query(query);
+    //log the query
+    console.log('Query Made at: /materials/previousMaterial: ' + query);
+
+    if (result.rows.length === 0) {
+      // Handle the case where no material ID is less than the specified materialID
+      res.status(404).json({ error: 'No previous material found.' });
+    } else {
+      const prevMaterialID = result.rows[0].material_id;
+      res.json({ prevMaterialID });
+    }
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//define the route for getting material info by material id, join with inventory
+app.get('/materials/lookUp', async (req, res) => {
+  const materialID = req.query.materialID; //extract the material id from the query parameter
+
+  try {
+    //const query = `SELECT * FROM public."tblMaterials" natural JOIN public."tblInventory" WHERE material_id = '${materialID}'`;
+    const query = `SELECT "tblMaterials".material_id,	"tblMaterials".material_type,	"tblMaterials".material_price,	"tblMaterials".material_color, COALESCE("tblInventory".on_hand, 0) AS on_hand, COALESCE("tblInventory".last_restock, null) AS last_restock FROM public."tblMaterials" LEFT JOIN public."tblInventory" ON "tblMaterials".material_id = "tblInventory".material_id WHERE "tblMaterials".material_id = '${materialID}'`;
+    const result = await pool.query(query);
+    //log the query
+    console.log('Query Made at: /materials/lookUp: ' + query);
+    res.json(result.rows); // Return the material data as JSON
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//define the route for fetching the first material id in the material table
+app.get('/materials/firstMaterial', async (req, res) => {
+  try {
+    const query = 'select min(material_id) from public."tblMaterials"';
+    const result = await pool.query(query);
+    //log the query
+    console.log('Query Made at: /materials/firstMaterial: ' + query);
+    const minMaterialId = result.rows[0].min; // Access the 'min' property
+    res.json({ minMaterialId });
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 //define the route for fetching all orders
 app.get('/orders/All', async (req, res) => {
   try {
@@ -154,7 +308,7 @@ app.post('/materials/lookUp', async (req, res) => {
 
   try {
     // Construct the query dynamically based on provided parameters
-    let query = 'SELECT * FROM public."tblMaterials" Natural JOIN public."tblInventory" WHERE 1=1'; // Start with a generic condition
+    let query = 'SELECT "tblMaterials".material_id,	"tblMaterials".material_type,	"tblMaterials".material_price,	"tblMaterials".material_color, COALESCE("tblInventory".on_hand, 0) AS on_hand, COALESCE("tblInventory".last_restock, null) AS last_restock FROM public."tblMaterials" LEFT JOIN public."tblInventory" ON "tblMaterials".material_id = "tblInventory".material_id WHERE 1=1';
 
     // Add conditions for non-empty parameters
     if (materialType) {
@@ -181,6 +335,7 @@ app.post('/materials/lookUp', async (req, res) => {
 
     // Execute the SQL query
     const result = await pool.query(query);
+    console.log(result);
     //log the query
     console.log('Query Made at: /materials/lookUp: ' + query);
     res.json(result.rows); // Return the material data as JSON
