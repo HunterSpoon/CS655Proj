@@ -1,0 +1,47 @@
+/* Global styles for document formatting */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.5;
+    margin-left: 10%;
+    padding: 0;
+    text-align: left; /* Center align the content */
+    background-color: #f8f8f8; /* Add a light background color */
+}
+
+h1 {
+    margin-left: 8%;
+    text-align: left; /* Center align the headings */
+    color: #333; /* Change the heading color */
+}
+
+h2, h3 {
+    text-align: left; /* Center align the headings */
+    color: #333; /* Change the heading color */
+}
+
+p {
+    margin: 0 0 1em;
+    text-align: left; /* Center align the paragraphs */
+    color: #555; /* Change the paragraph color */
+}
+
+/* Table formatting */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    margin: 0 auto; /* Center align the table */
+}
+
+th, td {
+    padding: 0.5em;
+    border: 1px solid #ccc;
+}
+
+th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+    color: #333; /* Change the table header color */
+}
+
+

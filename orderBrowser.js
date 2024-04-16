@@ -2,7 +2,7 @@
 window.addEventListener("DOMContentLoaded", domLoaded);
 const serverUrl = 'http://localhost:3000';
 let currentOrder = 0;
-let orderItems = [];
+
 
 
 async function domLoaded() {
@@ -239,15 +239,18 @@ function displayOrderItems(orderItems) {
     const orderItemsTable = document.getElementById('orderBrowserOrderItemsTable');
     orderItemsTable.innerHTML = '';
     //fill with header rows
-    orderItemsTable.innerHTML = `<tr>
-        <th>Material ID</th>
-        <th>Material Type</th>
-        <th>Material Color</th>
-        <th>Material Price</th>
-        <th>Material Quantity</th>
-        <th>Update Quantity</th>
-        <th>Delete Item</th>
-    </tr>`;
+
+    const tempRow = document.createElement('tr')
+    tempRow.innerHTML = `<th>Material ID</th>
+    <th>Material Type</th>
+    <th>Material Color</th>
+    <th>Material Price</th>
+    <th>Material Quantity</th>
+    <th>Update Quantity</th>
+    <th>Delete Item</th>
+    `
+    orderItemsTable.appendChild(tempRow);
+ 
     //fill with order items
     orderItems.forEach(orderItem => {
         const newRow = document.createElement('tr');

@@ -24,7 +24,10 @@ async function fetchCustomers() {
 //function that displays the customers in a table
 function displayCustomers(data) {
     const customerList = document.getElementById('customerList');
-    customerList.innerHTML = `
+    customerList.innerHTML = '';
+
+    const temptr = document.createElement('tr');
+    temptr.innerHTML = `
         <tr>
             <th>ID</th>
             <th>First Name</th>
@@ -32,7 +35,8 @@ function displayCustomers(data) {
             <th>Company</th>
             <th>Address</th>
         </tr>
-    `;
+    `
+    customerList.appendChild(temptr);
     data.forEach(customer => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -41,7 +45,7 @@ function displayCustomers(data) {
             <td>${customer.last_name}</td>
             <td>${customer.company_name}</td>
             <td>${customer.shipping_address}</td>
-        `;
+        `
         customerList.appendChild(tr);
     });
 }
