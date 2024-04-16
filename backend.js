@@ -373,6 +373,41 @@ app.get('/materials/lookUp', async (req, res) => {
   }
 });
 
+//define the route for updating the quantity of an order item via post request
+app.post('/orderItems/update', async (req, res) => {
+  const { orderid, materialID, quantity } = req.body;
+  try {
+    // Execute the SQL query
+    const query = `UPDATE public."tblOrder_Items" SET quantity = ${quantity} WHERE order_id = ${orderid} AND material_id = ${materialID}`;
+    await pool.query(query);
+    //log the query
+    console.log('Query Made at: /orderItems/update: ' + query);
+    // Send a success response
+    res.json({ message: 'Order item updated successfully!' });
+  } catch (error) {
+    console.log('Error updating order item:', error);
+    res.status(500).json({ error: 'An error occurred while updating the order item.' });
+  }
+});
+
+//define the route for deleting an order item via post request
+app.post('/orderItems/delete', async (req, res) => {
+  const { orderid, materialID } = req.body;
+
+  try {
+    // Execute the SQL query
+    const query = `DELETE FROM public."tblOrder_Items" WHERE order_id = ${orderid} AND material_id = ${materialID}`;
+    await pool.query(query);
+    //log the query
+    console.log('Query Made at: /orderItems/delete: ' + query);
+    // Send a success response
+    res.json({ message: 'Order item deleted successfully!' });
+  } catch (error) {
+    console.log('Error deleting order item:', error);
+    res.status(500).json({ error: 'An error occurred while deleting the order item.' });
+  }
+});
+
 //define the route for fetching the first material id in the material table
 app.get('/materials/firstMaterial', async (req, res) => {
   try {
@@ -388,6 +423,40 @@ app.get('/materials/firstMaterial', async (req, res) => {
   }
 });
 
+
+
+//define the route for fetching the sum of all materials on an order
+app.get('/order/TotalOfMaterials', async (req, res) => {
+  const orderID = req.query.orderID; //extract the order id from the query parameter
+
+  try {
+    const query = `select sum("tblMaterials".material_price) from public."tblMaterials" natural join public."tblOrder_Items" natural join public."tblOrders" where "tblOrders".order_id = ${orderID};`;
+    const result = await pool.query(query);
+    //log the query
+    console.log('Query Made at: /order/TotalOfMaterials: ' + query);
+    const totalMaterials = result.rows[0].sum; // Access the 'sum' property
+    res.json({ totalMaterials });
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//define the route for fetching the first order id in the order table
+app.get('/orders/firstOrder', async (req, res) => {
+  try {
+    const query = 'select min(order_id) from public."tblOrders"';
+    const result = await pool.query(query);
+    //log the query
+    console.log('Query Made at: /orders/firstOrder: ' + query);
+    const minOrderId = result.rows[0].min; // Access the 'min' property
+    res.json({ minOrderId });
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 //define the route for fetching all orders
 app.get('/orders/All', async (req, res) => {
   try {
@@ -395,6 +464,218 @@ app.get('/orders/All', async (req, res) => {
     const result = await pool.query(query);
     //log the query
     console.log('Query Made at: /orders/All: ' + query);
+    res.json(result.rows); // Return the order data as JSON
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//define the route for fetching all details of a specific order
+app.get('/orders/lookUp/Specific', async (req, res) => {
+  const orderID = req.query.orderID; //extract the order id from the query parameter
+
+  try {
+    const query = `SELECT * FROM public."tblOrders" WHERE order_id = '${orderID}'`;
+    const result = await pool.query(query);
+    //log the query
+    console.log('Query Made at: /orders/lookUp/Specific: ' + query);
+    res.json(result.rows); // Return the order data as JSON
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//define the route for deleting an order via post request. delete from tblOrder_items first, then tblOrders
+app.post('/orders/delete', async (req, res) => {
+  const { orderID } = req.body;
+
+  try {
+    // Execute the SQL query
+    const query = `DELETE FROM public."tblOrder_Items" WHERE order_id = ${orderID}; DELETE FROM public."tblOrders" WHERE order_id = ${orderID}`;
+    await pool.query(query);
+    //log the query
+    console.log('Query Made at: /orders/delete: ' + query);
+    // Send a success response
+    res.json({ message: 'Order deleted successfully!' });
+  } catch (error) {
+    console.log('Error deleting order:', error);
+    res.status(500).json({ error: 'An error occurred while deleting the order.' });
+  }
+});
+
+//define the route for adding a new item to an order
+app.post('/orderItems/addNew', async (req, res) => {
+  try {
+    // Extract the parameters from the request
+    const { orderID, materialID, quantity } = req.body;
+
+    // Check if the order item already exists
+    const checkQuery = `SELECT COUNT(*) FROM public."tblOrder_Items" WHERE order_id = '${orderID}' AND material_id = '${materialID}'`;
+    const existingOrderItemResult = await pool.query(checkQuery);
+    //log the query
+    console.log('Query Made at: /orderItems/addNew: ' + checkQuery);
+
+    // Check if the order item already exists
+    if (existingOrderItemResult.rows[0].count > 0) {
+      // Order item already exists
+      return res.status(409).json({ error: 'Order item already exists.' });
+    }
+
+    // Check if the material exists
+    const checkMaterialQuery = `SELECT COUNT(*) FROM public."tblMaterials" WHERE material_id = '${materialID}'`;
+    const existingMaterialResult = await pool.query(checkMaterialQuery);
+    //log the query
+    console.log('Query Made at: /orderItems/addNew: ' + checkMaterialQuery);
+
+    // Check if the material exists
+    if (existingMaterialResult.rows[0].count > 0) {
+      // Material exists
+    } else {
+      // Material does not exist
+      // avoids creating orphaned order items
+      return res.status(404).json({ error: 'Material does not exist.' });
+    }
+
+    // Execute the SQL query
+    const query = `INSERT INTO public."tblOrder_Items" (order_id, material_id, quantity) VALUES ('${orderID}', '${materialID}', '${quantity}')`;
+    await pool.query(query);
+    //log the query
+    console.log('Query Made at: /orderItems/addNew: ' + query);
+
+    // Send a success response
+    res.status(200).json({ message: 'Order item added successfully!' });
+  } catch (error) {
+    console.log('Error adding order item:', error);
+    res.status(500).json({ error: 'An error occurred while adding the order item.' });
+  }
+});
+
+//define the route for updating an order via post request
+app.post('/orders/update', async (req, res) => {
+  const { orderID, orderDate, orderTrackingInfo, customerID } = req.body;
+
+  try {
+
+    // Construct the query dynamically based on provided parameters
+    let query = 'UPDATE public."tblOrders" SET ';
+
+    // Add conditions for non-empty parameters
+    if (orderDate) {
+      query += `order_date = '${orderDate}',`;
+    }
+
+    if (orderTrackingInfo) {
+      query += `order_tracking_info = '${orderTrackingInfo}',`;
+    }
+
+    if (customerID) {
+      query += `customer_id = '${customerID}',`;
+    }
+
+    // Remove the trailing comma
+    query = query.slice(0, -1);
+
+    query += ` WHERE order_id = '${orderID}'`;
+
+    // Execute the SQL query
+    const result = await pool.query(query);
+    //return the result
+    res.json({ message: 'Order updated successfully!' });
+    // Log the query
+    console.log('Update Query Made at: /orders/update: ' + query);
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//define the route for fetching the previous order id
+app.get('/orders/previousOrder', async (req, res) => {
+  const orderID = req.query.orderID; //extract the order id from the query parameter
+
+  try {
+    const query = `SELECT order_id FROM public."tblOrders" WHERE order_id < ${orderID} ORDER BY order_id DESC LIMIT 1`;
+    const result = await pool.query (query);
+    //log the query
+    console.log('Query Made at: /orders/previousOrder: ' + query);
+  
+    if (result.rows.length === 0) {
+      // Handle the case where no order ID is less than the specified orderID
+      res.status(404).json({ error: 'No previous order found.' });
+    }
+    else {
+      const prevOrderID = result.rows[0].order_id;
+      res.json({ prevOrderID });
+    }
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//define the route for fetching the next order id
+app.get('/orders/nextOrder', async (req, res) => {
+  const orderID = req.query.orderID; //extract the order id from the query parameter
+
+  try {
+    const query = `SELECT order_id FROM public."tblOrders" WHERE order_id > ${orderID} ORDER BY order_id LIMIT 1`;
+    const result = await pool.query(query);
+    //log the query
+    console.log('Query Made at: /orders/nextOrder: ' + query);
+
+    if (result.rows.length === 0) {
+      // Handle the case where no order ID is greater than the specified orderID
+      res.status(404).json({ error: 'No next order found.' });
+    } else {
+      const nextOrderID = result.rows[0].order_id;
+      res.json({ nextOrderID });
+    }
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Define the route for fetching orders by any combination of fields
+app.post('/orders/lookUp', async (req, res) => {
+  const { orderLookUpID, orderLookUpDate, orderLookUpTrackingInfo, orderLookUpCustomerID, orderLookUpCompany, orderLookUpAddr } = req.body;
+
+  try {
+
+    // Construct the query dynamically based on provided parameters
+    let query = 'SELECT "tblOrders".order_id, "tblOrders".customer_id, "tblCustomers".shipping_address, "tblCustomers".company_name, "tblOrders".order_date, "tblOrders".order_tracking_info FROM public."tblOrders" NATURAL JOIN public."tblCustomers" WHERE 1=1'; // Start with a generic condition
+
+    // Add conditions for non-empty parameters
+    if (orderLookUpID) {
+      query += ` AND order_id = '${orderLookUpID}'`;
+    }
+
+    if (orderLookUpDate) {
+      query += ` AND order_date = '${orderLookUpDate}'`;
+    }
+
+    if (orderLookUpTrackingInfo) {
+      query += ` AND order_tracking_info = '${orderLookUpTrackingInfo}'`;
+    }
+
+    if (orderLookUpCustomerID) {
+      query += ` AND customer_id = '${orderLookUpCustomerID}'`;
+    }
+
+    if (orderLookUpCompany) {
+      query += ` AND company_name = '${orderLookUpCompany}'`;
+    }
+
+    if (orderLookUpAddr) {
+      query += ` AND shipping_address = '${orderLookUpAddr}'`;
+    }
+
+    // Execute the SQL query
+    const result = await pool.query(query);
+    // Log the query
+    console.log('Query Made at: /orders/lookUp: ' + query);
     res.json(result.rows); // Return the order data as JSON
   } catch (error) {
     console.error('Error executing query:', error);
@@ -426,6 +707,22 @@ app.get('/orderItems/AllItemsOnOrder', async (req, res) => {
     const result = await pool.query(query);
     //log the query
     console.log('Query Made at: /orderItems/AllItemsOnOrder: ' + query);
+    res.json(result.rows); // Return the order item data as JSON
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//define the route for fetching all items in an order, joined with tblMaterials
+app.get('/orderItems/AllItemsOnOrder/Specific', async (req, res) => {
+  try {
+    const orderID = req.query.orderID; //get the order id from the query parameter
+    const query = `SELECT "tblMaterials".material_id, "tblMaterials".material_type, "tblMaterials".material_price, "tblMaterials".material_color, "tblOrder_Items".quantity FROM public."tblOrder_Items" natural join "tblMaterials" where order_id = ${orderID} ORDER BY order_id ASC`;
+    console.log(query);
+    const result = await pool.query(query);
+    //log the query
+    console.log('Query Made at: /orderItems/AllItemsOnOrderWithMaterial: ' + query);
     res.json(result.rows); // Return the order item data as JSON
   } catch (error) {
     console.error('Error executing query:', error);
@@ -523,51 +820,6 @@ app.get('/materials/All', async (req, res) => {
   }
 });
 
-// Define the route for fetching orders by any combination of fields
-app.post('/orders/lookUp', async (req, res) => {
-  const { orderLookUpID, orderLookUpDate, orderLookUpTrackingInfo, orderLookUpCustomerID, orderLookUpCompany, orderLookUpAddr } = req.body;
-
-  try {
-
-    // Construct the query dynamically based on provided parameters
-    let query = 'SELECT "tblOrders".order_id, "tblOrders".customer_id, "tblCustomers".shipping_address, "tblCustomers".company_name, "tblOrders".order_date, "tblOrders".order_tracking_info FROM public."tblOrders" NATURAL JOIN public."tblCustomers" WHERE 1=1'; // Start with a generic condition
-
-    // Add conditions for non-empty parameters
-    if (orderLookUpID) {
-      query += ` AND order_id = '${orderLookUpID}'`;
-    }
-
-    if (orderLookUpDate) {
-      query += ` AND order_date = '${orderLookUpDate}'`;
-    }
-
-    if (orderLookUpTrackingInfo) {
-      query += ` AND order_tracking_info = '${orderLookUpTrackingInfo}'`;
-    }
-
-    if (orderLookUpCustomerID) {
-      query += ` AND customer_id = '${orderLookUpCustomerID}'`;
-    }
-
-    if (orderLookUpCompany) {
-      query += ` AND company_name = '${orderLookUpCompany}'`;
-    }
-
-    if (orderLookUpAddr) {
-      query += ` AND shipping_address = '${orderLookUpAddr}'`;
-    }
-
-    // Execute the SQL query
-    const result = await pool.query(query);
-    // Log the query
-    console.log('Query Made at: /orders/lookUp: ' + query);
-    res.json(result.rows); // Return the order data as JSON
-  } catch (error) {
-    console.error('Error executing query:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
 
 //Define the route for fetching all customers
 app.get('/customers/All', async (req, res) => {
@@ -613,6 +865,22 @@ app.post('/customers/addNew', async (req, res) => {
   } catch (error) {
     console.log('Error adding customer:', error);
     res.status(500).json({ error: 'An error occurred while adding the customer.' });
+  }
+});
+
+//define the route for fetching customer details that correspond to an order id
+app.get('/customers/lookUp/ByOrderID', async (req, res) => {
+  const orderID = req.query.orderID; //extract the order id from the query parameter
+
+  try {
+    const query = `select "tblCustomers".customer_id, "tblCustomers".first_name, "tblCustomers".last_name, "tblCustomers".company_name, "tblCustomers".shipping_address from public."tblCustomers" natural join public."tblOrders" where "tblOrders".order_id = ${orderID};`;
+    const result = await pool.query(query);
+    //log the query
+    console.log('Query Made at: /customers/lookUp/Specific: ' + query);
+    res.json(result.rows); // Return the customer data as JSON
+  } catch (error) {
+    console.error('Error executing query:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 

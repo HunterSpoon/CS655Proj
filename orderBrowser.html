@@ -24,7 +24,8 @@
         </div>
         <div id="orderBrowserOrderDate">Order Date:</div>
         <div id="orderBrowserOrderTrackingInfo">Tracking Info:</div>
-        <div id = "orderBrowserOrderItems">Order Items:</div>
+        <div id="orderTotal">Order Total:</div>
+
     </p>
 
     <p>
@@ -40,7 +41,6 @@
         <input id="orderBrowserUpdateCustomerId" type="text">
         
         <div id="orderBrowserUpdateCustomerData">
-            !: customer data or message saying customer does not exist here
         </div>
     </p>
 
@@ -54,7 +54,26 @@
     </p>
 
     <h2>Items On Order</h2>
+    <input id="orderBrowserAddItem" type="button" value="Add Item">
     <div id="orderBrowserOrderItemsTable">
-        
+        <table>
+            <tr>
+                <th>Material ID</th>
+                <th>Material Type</th>
+                <th>Material Color</th>
+                <th>Material Price</th>
+                <th>Quantity</th>
+                <th>Update</th>
+                <th>Delete</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>PLA</td>
+                <td>Black</td>
+                <td>20.00</td>
+                <td>2</td>
+                <td><input type="button" value="Update Quantity"></td>
+                <td><input type="button" value="Delete"></td>
+        </table>
     </div>
 </body>
