@@ -33,6 +33,8 @@ CREATE TABLE IF NOT EXISTS public."tblInventory"
         NOT VALID
 )
 
+
+
 CREATE TABLE IF NOT EXISTS public."tblMaterials"
 (
     material_id integer NOT NULL DEFAULT nextval('"tblMaterials_material_id_seq"'::regclass),
@@ -42,6 +44,7 @@ CREATE TABLE IF NOT EXISTS public."tblMaterials"
     CONSTRAINT "tblMaterials_pkey" PRIMARY KEY (material_id),
     CONSTRAINT "tblMaterials_material_type_material_color_key" UNIQUE (material_type, material_color)
 )
+
 
 CREATE TABLE IF NOT EXISTS public."tblOrder_Items"
 (
@@ -75,6 +78,7 @@ CREATE TABLE IF NOT EXISTS public."tblOrders"
         ON DELETE NO ACTION
         NOT VALID
 )
+
 */
 
 
@@ -88,7 +92,7 @@ const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
   database: 'FilaMintDB',
-  password: 'hunter', // Change to your password
+  password: '', // Change to your password
   port: 5432, // Default Port
 });
 
